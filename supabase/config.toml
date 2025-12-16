@@ -1,0 +1,4 @@
+project_id = "uqdjqnencjauwxvtyriz"
+
+[functions.astrology-reading]
+verify_jwt = false
