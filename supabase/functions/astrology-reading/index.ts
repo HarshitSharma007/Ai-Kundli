@@ -12,50 +12,61 @@ serve(async (req) => {
 
   try {
     const { userData, category, question, type } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const AZURE_OPENAI_API_KEY = Deno.env.get("AZURE_OPENAI_API_KEY");
+    const AZURE_OPENAI_ENDPOINT = Deno.env.get("AZURE_OPENAI_ENDPOINT");
+    const AZURE_OPENAI_DEPLOYMENT = Deno.env.get("AZURE_OPENAI_DEPLOYMENT");
     
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    if (!AZURE_OPENAI_API_KEY || !AZURE_OPENAI_ENDPOINT || !AZURE_OPENAI_DEPLOYMENT) {
+      throw new Error("Azure OpenAI configuration is missing");
     }
 
-    const { name, dateOfBirth, birthTime, birthPlace } = userData;
+    const { name, dateOfBirth, timeOfBirth, placeOfBirth } = userData;
     
-    let systemPrompt = `You are a mystical and wise astrology guru with deep knowledge of Vedic astrology, Western astrology, and cosmic wisdom. You speak in an engaging, mystical yet warm manner. Your readings are personalized, insightful, and uplifting.
+    let systemPrompt = `You are a practical Vedic astrology consultant. Provide direct, factual astrological insights without flowery language or excessive metaphors.
 
-The person seeking guidance:
+User Details:
 - Name: ${name}
 - Date of Birth: ${dateOfBirth}
-- Birth Time: ${birthTime}
-- Birth Place: ${birthPlace}
+- Birth Time: ${timeOfBirth || 'Not provided'}
+- Birth Place: ${placeOfBirth}
 
-Based on their birth details, provide deeply personalized astrological insights. Be specific, mention planetary positions, zodiac influences, and cosmic energies. Keep responses mystical but grounded, inspiring but realistic.`;
+Guidelines:
+- Use simple, conversational English
+- Be specific about planetary positions and their effects
+- Skip poetic phrases like "dearest seeker", "cosmic dancer", "tapestry of life"
+- Get straight to the point
+- Base insights on actual astrological principles
+- Keep it practical and actionable`;
 
     let userPrompt = '';
     
     if (type === 'intro') {
-      userPrompt = `Provide an introductory reading for the ${category} category. Give a comprehensive overview (3-4 paragraphs) about their cosmic influences in this area of life. Be mystical, insightful, and personalized.`;
+      userPrompt = `Give a direct overview of ${category} for this person. Start immediately with the astrological analysis. No greetings or poetic introductions. Maximum 150 words.`;
     } else if (type === 'question') {
-      userPrompt = `Answer this question about ${category}: "${question}"
+      userPrompt = `Answer directly: "${question}" (Category: ${category})
       
-Provide a detailed, mystical response (2-3 paragraphs) that draws on their astrological chart and cosmic energies.`;
+One focused paragraph. No flowery language. Just practical astrological insight.`;
     } else if (type === 'followup') {
-      userPrompt = `Based on the ${category} reading, generate 5 follow-up questions that would help explore deeper aspects. Return ONLY a JSON array of strings with 5 questions, no other text.`;
+      userPrompt = `Based on ${category}, generate 5 specific follow-up questions. Return ONLY a JSON array of strings, no other text.`;
     }
 
-    console.log("Calling Lovable AI for astrology reading...");
+    console.log("Calling Azure OpenAI for astrology reading...");
     
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const apiUrl = `${AZURE_OPENAI_ENDPOINT}/openai/deployments/${AZURE_OPENAI_DEPLOYMENT}/chat/completions?api-version=2024-08-01-preview`;
+    
+    const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "api-key": AZURE_OPENAI_API_KEY,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt }
         ],
+        max_tokens: 1000,
+        temperature: 0.5,
       }),
     });
 

@@ -58,7 +58,7 @@ export const AnimatedGuru: React.FC<AnimatedGuruProps> = ({ isSpeaking, message 
       </div>
 
       {/* Guru Title */}
-      <h3 className="font-mystical text-xl gold-text mb-4">The Cosmic Oracle</h3>
+      <h3 className="font-mystical text-xl gold-text mb-4">The Astro Guru</h3>
 
       {/* Message Bubble */}
       <div className="mystical-card p-6 max-w-2xl mx-auto relative">

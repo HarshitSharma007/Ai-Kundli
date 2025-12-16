@@ -15,7 +15,7 @@ export const QuestionList: React.FC<QuestionListProps> = ({
   return (
     <div className="space-y-3 mt-8">
       <h4 className="font-mystical text-primary text-sm uppercase tracking-wider text-center mb-4">
-        ✧ Ask the Oracle ✧
+        ✧ Ask From Astrologer ✧
       </h4>
       {questions.map((question, index) => (
         <button
