@@ -1,4 +1,4 @@
-project_id = "uqdjqnencjauwxvtyriz"
+project_id = "jopyrvmuqxsqwdtmevli"
 
 [functions.astrology-reading]
-verify_jwt = false
+verify_jwt = true  # Change to true to require authentication
